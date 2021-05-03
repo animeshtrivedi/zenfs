@@ -225,6 +225,7 @@ IOStatus ZonedBlockDevice::Open(bool readonly) {
       return IOStatus::InvalidArgument("Failed to open zoned block device: " + ErrorToString(errno));
     }
   }
+  printf("[atr] read_f_ %d read_direct_f (why a second pointer) %d and write_f_ %d , info.mode is %s \n", read_f_, read_direct_f_, write_f_, (info.model == ZBD_DM_HOST_MANAGED)?"ZBD_DM_HOST_MANAGED":"Unknown");
 
   if (info.model != ZBD_DM_HOST_MANAGED) {
     return IOStatus::NotSupported("Not a host managed block device");
@@ -267,17 +268,24 @@ IOStatus ZonedBlockDevice::Open(bool readonly) {
     Error(logger_, "Failed to list zones, err: %d", ret);
     return IOStatus::IOError("Failed to list zones");
   }
-
+  // atr - what is it doing here?
+  printf("[atr] total number of zones reported are %d \n ", reported_zones);
   while (m < ZENFS_META_ZONES && i < reported_zones) {
-    struct zbd_zone *z = &zone_rep[i++];
+    struct zbd_zone *z = &zone_rep[i];
+    printf("\t [all] m = %lu and i = %lu , addr 0x%llu and wp 0x%llu capacity is 0x%llu len is 0x%llu \n", m, i, z->start, z->wp, z->capacity, z->len);
     /* Only use sequential write required zones */
     if (zbd_zone_type(z) == ZBD_ZONE_TYPE_SWR) {
       if (!zbd_zone_offline(z)) {
+        printf("\t\t [atr] metadata zone being pushed, start 0x%llu and write pointers 0x%llu \n", z->start, z->wp);
         meta_zones.push_back(new Zone(this, z));
       }
       m++;
     }
+    i++;
   }
+
+  // atr - so it looks like for a certain number of zenfs metadata zones where the fs data is stored. The size being
+  // the first zbd_list_zones zones, here and now 3
 
   active_io_zones_ = 0;
   open_io_zones_ = 0;

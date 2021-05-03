@@ -1103,6 +1103,7 @@ FactoryFunc<FileSystem> zenfs_filesystem_reg =
           devID.replace(0, strlen("zenfs://"), "");
           if (devID.rfind("dev:") == 0) {
             devID.replace(0, strlen("dev:"), "");
+            printf("[atr] Allocating a new NewZenFS from uri = %s and dev = %s \n", uri.c_str(), devID.c_str());
             s = NewZenFS(&fs, devID);
             if (!s.ok()) {
               *errmsg = s.ToString();
