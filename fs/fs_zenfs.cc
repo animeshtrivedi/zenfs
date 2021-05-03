@@ -4,7 +4,7 @@
 //  COPYING file in the root directory) and Apache 2.0 License
 //  (found in the LICENSE.Apache file in the root directory).
 
-#if !defined(ROCKSDB_LITE) && defined(OS_LINUX)
+
 
 #include "fs_zenfs.h"
 
@@ -1127,19 +1127,3 @@ FactoryFunc<FileSystem> zenfs_filesystem_reg =
           return f->get();
         });
 };  // namespace ROCKSDB_NAMESPACE
-
-#else
-
-#include "rocksdb/env.h"
-
-namespace ROCKSDB_NAMESPACE {
-Status NewZenFS(FileSystem** /*fs*/, const std::string& /*bdevname*/) {
-  return Status::NotSupported("Not built with ZenFS support\n");
-}
-std::map<std::string, std::string> ListZenFileSystems() {
-  std::map<std::string, std::string> zenFileSystems;
-  return zenFileSystems;
-}
-}  // namespace ROCKSDB_NAMESPACE
-
-#endif  // !defined(ROCKSDB_LITE) && defined(OS_LINUX)

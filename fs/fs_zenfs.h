@@ -14,8 +14,6 @@
 
 namespace ROCKSDB_NAMESPACE {
 
-#if !defined(ROCKSDB_LITE) && defined(OS_LINUX)
-
 class Superblock {
   uint32_t magic_ = 0;
   char uuid_[37] = {0};
@@ -345,7 +343,6 @@ class ZenFS : public FileSystemWrapper {
     return IOStatus::NotSupported("AreFilesSame is not supported in ZenFS");
   }
 };
-#endif  // !defined(ROCKSDB_LITE) && defined(OS_LINUX)
 
 Status NewZenFS(FileSystem** fs, const std::string& bdevname);
 std::map<std::string, std::string> ListZenFileSystems();
